@@ -1,3 +1,8 @@
+import { Chess } from "chess.js";
+
+
+
+
 var board = null
 var game = new Chess()
 var $status = $('#status')
@@ -46,25 +51,20 @@ function onSnapEnd () {
 }
 
 function updateStatus () {
-    stockfish.postMessage(`position fen ${game.fen()}`);
-    stockfish.postMessage("go depth 10");
-    stockfish.onmessage=function(event){
-        console.log(event.data);
-    }
     var status = ''
 
     var moveColor = 'White'
     if (game.turn() === 'b') {
         moveColor = 'Black'
     }
-
+    
     // checkmate?
-    if (game.in_checkmate()) {
+    if (game.isCheckmate()) {
         status = 'Game over, ' + moveColor + ' is in checkmate.'
     }
 
     // draw?
-    else if (game.in_draw()) {
+    else if (game.isDraw()) {
         status = 'Game over, drawn position'
     }
 
@@ -73,7 +73,7 @@ function updateStatus () {
         status = moveColor + ' to move'
 
         // check?
-        if (game.in_check()) {
+        if (game.isCheck()) {
         status += ', ' + moveColor + ' is in check'
         }
     }

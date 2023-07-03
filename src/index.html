@@ -1,19 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<base href="../">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Chess openings trainer</title>
+    <title>Document</title>
 </head>
-<link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU" crossorigin="anonymous">
+<div id="output">
+
+</div>
 <body>
-    <div id="myBoard" style="width: 400px"></div>
-    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js" integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js" integrity="sha384-s3XgLpvmHyscVpijnseAmye819Ee3yaGa8NxstkJVyA6nuDFjt59u1QvuEl/mecz" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="../node_modules/stockfish/src/stockfish.js"></script> 
-    <script type="module" src="src/index.js"></script>
+    <script>
+        function displayArray(arr){
+            const outputDiv = document.getElementById('output');
+            arr.forEach(element => {
+            const paragraph = document.createElement('p');
+            paragraph.textContent = element.name;
+            outputDiv.appendChild(paragraph);
+            });
+        }
+
+
+        fetch('/data')
+        .then(response => response.json())
+        .then(data => {
+            // Process the received data
+            //console.log(data.rows);
+            // Additional logic goes here
+            displayArray(data.rows);
+        })
+        .catch(error => {
+            // Handle any errors that occurred during the request
+            console.error('Error:', error);
+        });
+    </script>
 </body>
 </html>
