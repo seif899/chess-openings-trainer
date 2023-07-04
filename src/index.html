@@ -5,33 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-<div id="output">
+<div id="container">
 
 </div>
 <body>
     <script>
+        const container = document.getElementById('container');
+
+
+        function handleCLick(e){
+            window.location.pathname = `/${e.target.id}`;
+        }
+
+
         function displayArray(arr){
-            const outputDiv = document.getElementById('output');
             arr.forEach(element => {
-            const paragraph = document.createElement('p');
-            paragraph.textContent = element.name;
-            outputDiv.appendChild(paragraph);
+                const div = document.createElement('div');
+
+                // Set the div's ID to "opening"
+                div.className = 'opening';
+
+                div.id=element.id;
+
+                // Set the text content of the div to the current element
+                div.textContent = element.name;
+
+                // Append the div to the container
+                container.appendChild(div);
+
+                div.addEventListener("click",(e)=>handleCLick(e));
+                
             });
+
         }
 
 
         fetch('/data')
         .then(response => response.json())
         .then(data => {
-            // Process the received data
-            //console.log(data.rows);
-            // Additional logic goes here
             displayArray(data.rows);
         })
         .catch(error => {
-            // Handle any errors that occurred during the request
             console.error('Error:', error);
         });
+
+
+
+
+
+
+
     </script>
 </body>
 </html>

@@ -1,34 +1,67 @@
-import { Chess } from "chess.js";
+
+const currentRoute = window.location.pathname;
+const requestData = {
+    id: currentRoute.substring(1)
+}
+
+const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(requestData)
+  };
+  
+// Make the POST request
+fetch('/post', requestOptions)
+.then(response => {
+    // Check if the response was successful (status code between 200 and 299)
+    if (response.ok) {
+    return response.json();
+    } else {
+    throw new Error('Error: ' + response.status);
+    }
+})
+.then(data => {
+    // Process the response data
+    console.log(data);
+    start(data);
+})
+.catch(error => {
+    // Handle any errors that occurred during the request
+    console.error('Error:', error);
+});
 
 
 
 
-var board = null
-var game = new Chess()
-var $status = $('#status')
-var $fen = $('#fen')
-var $pgn = $('#pgn')
+function start(data){
+    const stockfish = new Worker("../node_modules/stockfish/src/stockfish.js");
+    stockfish.postMessage("uci");
+    stockfish.postMessage("ucinewgame");
+    stockfish.postMessage("go depth 10");
+    stockfish.postMessage("setoption name MultiPV value 3");
 
+    var board = null
+    var game = new Chess()
+    var $status = $('#status')
+    var $fen = $('#fen')
+    var $pgn = $('#pgn')
 
-const stockfish = new Worker("../node_modules/stockfish/src/stockfish.js");
-stockfish.postMessage("uci");
-stockfish.postMessage("ucinewgame");
-stockfish.postMessage("go depth 10");
-stockfish.postMessage("setoption name MultiPV value 3");
+    game.load_pgn(data.rows[0].moves);
 
-function onDragStart (source, piece, position, orientation) {
-   
+    function onDragStart (source, piece, position, orientation) {
     // do not pick up pieces if the game is over
     if (game.game_over()) return false
-  
+
     // only pick up pieces for the side to move
     if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
         (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-      return false
+        return false
     }
-}
-  
-function onDrop (source, target) {
+    }
+
+    function onDrop (source, target) {
     // see if the move is legal
     var move = game.move({
         from: source,
@@ -40,31 +73,29 @@ function onDrop (source, target) {
     if (move === null) return 'snapback'
 
     updateStatus()
-}
+    }
 
-
-// update the board position after the piece snap
-// for castling, en passant, pawn promotion
-function onSnapEnd () {
+    // update the board position after the piece snap
+    // for castling, en passant, pawn promotion
+    function onSnapEnd () {
     board.position(game.fen())
+    }
 
-}
-
-function updateStatus () {
+    function updateStatus () {
     var status = ''
 
     var moveColor = 'White'
     if (game.turn() === 'b') {
         moveColor = 'Black'
     }
-    
+
     // checkmate?
-    if (game.isCheckmate()) {
+    if (game.in_checkmate()) {
         status = 'Game over, ' + moveColor + ' is in checkmate.'
     }
 
     // draw?
-    else if (game.isDraw()) {
+    else if (game.in_draw()) {
         status = 'Game over, drawn position'
     }
 
@@ -73,7 +104,7 @@ function updateStatus () {
         status = moveColor + ' to move'
 
         // check?
-        if (game.isCheck()) {
+        if (game.in_check()) {
         status += ', ' + moveColor + ' is in check'
         }
     }
@@ -81,18 +112,21 @@ function updateStatus () {
     $status.html(status)
     $fen.html(game.fen())
     $pgn.html(game.pgn())
+    }
+
+    var config = {
+    draggable: true,
+    position: 'start',
+    onDragStart: onDragStart,
+    onDrop: onDrop,
+    onSnapEnd: onSnapEnd
+    }
+    board = Chessboard('myBoard', config)
+
+    updateStatus()
+    
 }
 
-var config = {
-draggable: true,
-position: 'start',
-onDragStart: onDragStart,
-onDrop: onDrop,
-onSnapEnd: onSnapEnd
-}
-board = Chessboard('myBoard', config)
-
-updateStatus()
 
 
 
