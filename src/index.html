@@ -14,36 +14,50 @@
 
 
         function handleCLick(e){
-            window.location.pathname = `/${e.target.id}`;
+            window.location.href = `/${e.target.parentNode.parentNode.id}?line=${encodeURIComponent(e.target.innerText)}`;
         }
 
 
-        function displayArray(arr){
-            arr.forEach(element => {
-                const div = document.createElement('div');
 
-                // Set the div's ID to "opening"
+
+        function displayElements(elements) {
+            
+            
+            elements.forEach(function(element) {
+                var div = document.createElement('div');
                 div.className = 'opening';
-
                 div.id=element.id;
-
-                // Set the text content of the div to the current element
                 div.textContent = element.name;
-
-                // Append the div to the container
-                container.appendChild(div);
-
-                div.addEventListener("click",(e)=>handleCLick(e));
                 
+                div.addEventListener('click', function() {
+                var hiddenDiv = div.querySelector('.hidden-div');
+                hiddenDiv.style.display = hiddenDiv.style.display === 'none' ? 'block' : 'none';
+                });
+                
+                var hiddenDiv = document.createElement('div');
+                hiddenDiv.className = 'hidden-div';
+                hiddenDiv.style.display = 'none';
+                
+                for (var i = 1; i <= 3; i++) {
+                    var paragraph = document.createElement('p');
+                    paragraph.textContent = i;
+                    paragraph.addEventListener('click', (e)=>handleCLick(e));
+                    hiddenDiv.appendChild(paragraph);
+                }
+                
+                div.appendChild(hiddenDiv);
+                container.appendChild(div);
             });
-
+            
+            
         }
+
 
 
         fetch('/data')
         .then(response => response.json())
         .then(data => {
-            displayArray(data.rows);
+            displayElements(data.rows);
         })
         .catch(error => {
             console.error('Error:', error);
